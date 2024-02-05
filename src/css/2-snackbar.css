@@ -29,11 +29,6 @@ input[name='delay']:hover {
   border-color: #000;
 }
 
-input[name='delay']:focus-visible {
-  border-color: #4e75ff;
-  outline: #4e75ff;
-}
-
 fieldset {
   padding-bottom: 8px;
   margin-bottom: 24px;
@@ -57,17 +52,12 @@ fieldset.pressed {
   width: 100%;
   padding: 8px 16px;
   text-align: center;
-  border: none;
-  color: #fff;
+  border: 1px solid #808080;
+  color: #000;
   font-size: inherit;
   font-family: inherit;
   border-radius: 8px;
-  background-color: #4e75ff;
   transition: background-color 250ms linear;
-}
-
-.form button:hover {
-  background-color: #6c8cff;
 }
 
 input[type='radio'] {
