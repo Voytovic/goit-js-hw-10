@@ -10,18 +10,23 @@ const PRESSED = 'pressed';
 const CHECKED = 'checked';
 const FULFILLED = 'fulfilled';
 
-function handleRadioChange(event) {
+const handleRadioChange = () => {
   const checkedLabel = document.querySelector('.checked');
   const isPressed = formFieldset.classList.value.includes(PRESSED);
+
   if (!isPressed) {
     formFieldset.classList.add(PRESSED);
   }
+
   if (checkedLabel) {
     checkedLabel.classList.remove(CHECKED);
   }
+
   const checkedRadio = document.querySelector('input[name="state"]:checked');
+
   if (checkedRadio) {
     const checkedLabel = checkedRadio.closest('label');
+
     if (checkedLabel) {
       checkedLabel.classList.add(CHECKED);
     }
@@ -30,26 +35,35 @@ function handleRadioChange(event) {
 
 const onSubmit = event => {
   event.preventDefault();
-  const delay = Number(event.target.elements.delay.value);
-  const isFulfilled = event.target.elements.state.value === FULFILLED;
+  const delayInput = event.target.elements.delay;
+  const stateInput = event.target.elements.state;
 
-  const promise = new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (isFulfilled) {
-        resolve(`Fulfilled promise in ${delay}ms`);
-      } else {
-        reject(`Rejected promise in ${delay}ms`);
-      }
-    }, delay);
-  });
+  const delay = Number(delayInput.value);
+  const isFulfilled = stateInput.value === FULFILLED;
 
-  promise
-    .then(value => {
-      iziToast.show({ ...alertOptions.success, message: value });
-    })
-    .catch(error => {
-      iziToast.show({ ...alertOptions.error, message: error });
+  const handlePromise = (delay, isFulfilled) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (isFulfilled) {
+          resolve(`Fulfilled promise in ${delay}ms`);
+        } else {
+          reject(`Rejected promise in ${delay}ms`);
+        }
+      }, delay);
     });
+  };
+
+  const handleSuccess = value => {
+    iziToast.show({ ...alertOptions.success, message: value });
+  };
+
+  const handleError = error => {
+    iziToast.show({ ...alertOptions.error, message: error });
+  };
+
+  handlePromise(delay, isFulfilled)
+    .then(handleSuccess)
+    .catch(handleError);
 };
 
 form.addEventListener('submit', onSubmit);

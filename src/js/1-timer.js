@@ -2,7 +2,6 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
-import { alertOptions } from './alertOptions.js';
 
 const dateTimeSelector = document.querySelector('input#datetime-picker');
 const startTimerButton = document.querySelector('button[data-start]');
@@ -34,14 +33,16 @@ const convertMs = ms => {
 };
 
 const setDate = ({ days, hours, minutes, seconds }) => {
-  daysInput.textContent = String(days).padStart(2, 0);
-  hoursInput.textContent = String(hours).padStart(2, 0);
-  minutesInput.textContent = String(minutes).padStart(2, 0);
-  secondsInput.textContent = String(seconds).padStart(2, 0);
+  daysInput.textContent = String(days).padStart(2, '0');
+  hoursInput.textContent = String(hours).padStart(2, '0');
+  minutesInput.textContent = String(minutes).padStart(2, '0');
+  secondsInput.textContent = String(seconds).padStart(2, '0');
 };
 
-const startTimer = time => {
-  return () => {
+const startTimer = () => {
+  let time = countLeftTime(userSelectedDate);
+
+  const timerId = setInterval(() => {
     time -= 1000;
     if (time >= 0) {
       setDate(convertMs(time));
@@ -49,19 +50,33 @@ const startTimer = time => {
       dateTimeSelector.disabled = false;
       clearInterval(timerId);
     }
-  };
+  }, 1000);
+
+  return timerId;
 };
 
 startTimerButton.addEventListener('click', () => {
   const time = countLeftTime(userSelectedDate);
-  startTimerButton.disabled = true;
 
   if (time > 0) {
     dateTimeSelector.disabled = true;
+    startTimerButton.disabled = true;
+
     setDate(convertMs(time));
-    timerId = setInterval(startTimer(time), 1000);
+    timerId = startTimer();
   } else {
-    iziToast.show(alertOptions.error);
+    iziToast.show({
+      title: 'Error',
+      message: 'Please choose a date in the future',
+      color: '#EF4040',
+      position: 'topRight',
+      icon: 'icon-octagon',
+      iconText: '',
+      timeout: 5000,
+      titleColor: '#fff',
+      messageColor: '#fff',
+      iconColor: '#fff',
+    });
   }
 });
 
@@ -71,12 +86,24 @@ const options = {
   defaultDate: new Date(),
   minuteIncrement: 1,
   onClose(selectedDates) {
-    if (countLeftTime(selectedDates[0]) > 0) {
+    const time = countLeftTime(selectedDates[0]);
+    if (time > 0) {
       userSelectedDate = selectedDates[0];
       startTimerButton.disabled = false;
     } else {
       startTimerButton.disabled = true;
-      iziToast.show(alertOptions.error);
+      iziToast.show({
+        title: 'Error',
+        message: 'Please choose a date in the future',
+        color: '#EF4040',
+        position: 'topRight',
+        icon: 'icon-octagon',
+        iconText: '',
+        timeout: 5000,
+        titleColor: '#fff',
+        messageColor: '#fff',
+        iconColor: '#fff',
+      });
     }
   },
 };
