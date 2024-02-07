@@ -12,12 +12,6 @@ const secondsInput = document.querySelector('span[data-seconds]');
 
 let userSelectedDate, timerId;
 
-const countLeftTime = date => {
-  const dateNow = Math.floor(Date.now() / 1000);
-  const selectedDate = date.getTime() / 1000;
-  return (selectedDate - dateNow) * 1000;
-};
-
 const convertMs = ms => {
   const second = 1000;
   const minute = second * 60;
@@ -40,7 +34,7 @@ const setDate = ({ days, hours, minutes, seconds }) => {
 };
 
 const startTimer = () => {
-  let time = countLeftTime(userSelectedDate);
+  let time = convertMs(userSelectedDate - Date.now());
 
   const timerId = setInterval(() => {
     time -= 1000;
@@ -55,8 +49,43 @@ const startTimer = () => {
   return timerId;
 };
 
+const initializePage = () => {
+  // Вимкнення кнопки "Старт" при завантаженні сторінки
+  startTimerButton.disabled = true;
+
+  const options = {
+    enableTime: true,
+    time_24hr: true,
+    defaultDate: new Date(),
+    minuteIncrement: 1,
+    onClose(selectedDates) {
+      const time = selectedDates[0].getTime() - Date.now();
+      if (time > 0) {
+        userSelectedDate = selectedDates[0];
+        startTimerButton.disabled = false;
+      } else {
+        startTimerButton.disabled = true;
+        iziToast.show({
+          title: 'Error',
+          message: 'Please choose a date in the future',
+          color: '#EF4040',
+          position: 'topRight',
+          icon: 'icon-octagon',
+          iconText: '',
+          timeout: 5000,
+          titleColor: '#fff',
+          messageColor: '#fff',
+          iconColor: '#fff',
+        });
+      }
+    },
+  };
+
+  flatpickr(dateTimeSelector, options);
+};
+
 startTimerButton.addEventListener('click', () => {
-  const time = countLeftTime(userSelectedDate);
+  const time = userSelectedDate - Date.now();
 
   if (time > 0) {
     dateTimeSelector.disabled = true;
@@ -80,32 +109,5 @@ startTimerButton.addEventListener('click', () => {
   }
 });
 
-const options = {
-  enableTime: true,
-  time_24hr: true,
-  defaultDate: new Date(),
-  minuteIncrement: 1,
-  onClose(selectedDates) {
-    const time = countLeftTime(selectedDates[0]);
-    if (time > 0) {
-      userSelectedDate = selectedDates[0];
-      startTimerButton.disabled = false;
-    } else {
-      startTimerButton.disabled = true;
-      iziToast.show({
-        title: 'Error',
-        message: 'Please choose a date in the future',
-        color: '#EF4040',
-        position: 'topRight',
-        icon: 'icon-octagon',
-        iconText: '',
-        timeout: 5000,
-        titleColor: '#fff',
-        messageColor: '#fff',
-        iconColor: '#fff',
-      });
-    }
-  },
-};
-
-flatpickr(dateTimeSelector, options);
+// Ініціалізація сторінки
+initializePage();
