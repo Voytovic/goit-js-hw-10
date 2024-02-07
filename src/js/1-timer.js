@@ -34,10 +34,9 @@ const setDate = ({ days, hours, minutes, seconds }) => {
 };
 
 const startTimer = () => {
-  let time = convertMs(userSelectedDate - Date.now());
+  timerId = setInterval(() => {
+    const time = userSelectedDate - Date.now();
 
-  const timerId = setInterval(() => {
-    time -= 1000;
     if (time >= 0) {
       setDate(convertMs(time));
     } else {
@@ -92,7 +91,7 @@ startTimerButton.addEventListener('click', () => {
     startTimerButton.disabled = true;
 
     setDate(convertMs(time));
-    timerId = startTimer();
+    startTimer();
   } else {
     iziToast.show({
       title: 'Error',
